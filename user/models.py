@@ -95,3 +95,9 @@ class UserLog(models.Model):
     class Meta:
         db_table = 'user_logs'
 
+class UserApplication(models.Model):
+    user = models.ForeignKey('User', on_delete=models.CASCADE)
+    job_posts = models.ForeignKey('post.JobPost', on_delete=models.SET_NULL, null=True)
+
+    class Meta:
+        db_table = 'user_applications'

@@ -7,10 +7,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import permissions, status
 
-
 from django.contrib.auth import login, authenticate, logout
 
-from .models import User, UserLog, UserType
+from user.serializers import UserApplicationSerializer
+from .models import User, UserApplication, UserLog, UserType
+
 
 class SignUpView(APIView):
 
@@ -52,3 +53,21 @@ class SignInView(APIView):
         logout(request)
         return Response({"message": "logout success!!"}, status=status.HTTP_200_OK)
 
+
+class UserApplicationView(APIView):
+    def get(self, request):
+        applications = UserApplication.objects.filter(user=request.user)
+        serialized_data = UserApplicationSerializer(applications, many=True).data
+
+        return Response(serialized_data, status=status.HTTP_200_OK)
+    
+    def post(self, request):
+        request.data["user"] = request.user.id
+        application_serializer = UserApplicationSerializer(data=request.data)
+
+        if application_serializer.is_valid():
+            application_serializer.save()
+            return Response(application_serializer.data, status=status.HTTP_200_OK)
+        
+        else:
+            return Response(application_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
