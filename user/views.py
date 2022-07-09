@@ -1,11 +1,12 @@
 import json
 import datetime
 from django.contrib.auth.hashers import make_password
-from django.shortcuts import render
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import permissions, status
+from user.permissions import IsCandidateUser
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from django.contrib.auth import login, authenticate, logout
 
@@ -55,6 +56,9 @@ class SignInView(APIView):
 
 
 class UserApplicationView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsCandidateUser]
+    
     def get(self, request):
         applications = UserApplication.objects.filter(user=request.user)
         serialized_data = UserApplicationSerializer(applications, many=True).data
@@ -62,6 +66,7 @@ class UserApplicationView(APIView):
         return Response(serialized_data, status=status.HTTP_200_OK)
     
     def post(self, request):
+
         request.data["user"] = request.user.id
         application_serializer = UserApplicationSerializer(data=request.data)
 
