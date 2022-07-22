@@ -1,3 +1,4 @@
+from email.mime import application
 from django.db import models
 
 from user.models import User
@@ -58,10 +59,23 @@ class BusinessArea(models.Model):
         db_table = 'business_areas'
 
 
+APPLICATION_STATUS_CHOICES = [
+    ('writing', 'writing'),
+    ('submitted', 'submitted'),
+    ('under review', 'under review'),
+    ('interview planned', 'interview planned'),
+    ('in recruitment progress', 'in recruitment progress'),
+]
+
+class ApplicationStatus(models.Model):
+    application_status = models.CharField('지원서 상태', max_length=30, choices=APPLICATION_STATUS_CHOICES, default='submitted')
+
 class JobPostActivity(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     job_post = models.ForeignKey(JobPost, on_delete=models.CASCADE, null=True)
     apply_date = models.DateTimeField(auto_now_add=True)
+    application_status = models.ForeignKey(ApplicationStatus, on_delete=models.SET_NULL, null=True)
+    
 
     class Meta:
         db_table = "job_post_activity"

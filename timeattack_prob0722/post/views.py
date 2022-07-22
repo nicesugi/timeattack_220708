@@ -7,7 +7,9 @@ from .models import (
     JobPostSkillSet,
     JobType,
     JobPost,
-    Company
+    Company,
+    JobPostActivity
+    
 )
 from .permissions import IsCandidateUser
 from .serializers import JobPostSerializer, JobPostActivitySerializer
@@ -75,10 +77,23 @@ class ApplyView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsCandidateUser]
 
+    def get(self, request):
+        request.data['user'] = request.user.id
+        status = JobPostActivity.objects.filter(application_status__application_status="submitted")
+        request.data['application_status'] = status
+        application_status = JobPostActivitySerializer(data=request.data, many=True).data
+
+        return Response(application_status, status=status.HTTP_200_OK)
+
+
     def post(self, request):
         request.data['user']= request.user.id
         apply_serialzer = JobPostActivitySerializer(data=request.data)
+
+        
+        print(JobPostActivitySerializer.data)
         if apply_serialzer.is_valid():
+            
             apply_serialzer.save()
             return Response(status=status.HTTP_200_OK)
 

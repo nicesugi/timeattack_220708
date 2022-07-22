@@ -80,7 +80,11 @@ class JobPostSkillSetSerializer(serializers.ModelSerializer):
         fields = ('id', 'skill_set', 'job_post')
 
 class JobPostActivitySerializer(serializers.ModelSerializer):
-
+    application_status = serializers.SerializerMethodField()
+    
+    def get_application_status(self, obj):
+        print("obj>?>>>>>>>>>",obj)
+    
     class Meta:
         model = JobPostActivity
-        fields = '__all__'
+        fields = ["user", "job_posts", "apply_date", "application_status"]
